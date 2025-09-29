@@ -119,7 +119,7 @@ w0_info = {
     'position': [0, 0],
     'rotation': 0,
     'visible': False,
-    'velocity': [0, 3],
+    'velocity': [0, 6],
     'ang_velocity': 0,
     'motors': [motors['m0'], motors['m1']],
     'motor_direction': [1, 1],
