@@ -119,7 +119,7 @@ w0_info = {
     'position': [0, 0],
     'rotation': 0,
     'visible': False,
-    'velocity': [0, 6],
+    'velocity': [0, 3],
     'ang_velocity': 0,
     'motors': [motors['m0'], motors['m1']],
     'motor_direction': [1, 1],
@@ -162,7 +162,7 @@ drives = {
 # Sensors
 u0_info = {
     'id': 'u0',
-    'position': [0, 2.5],
+    'position': [0, 3.5],
     'height': 1,
     'rotation': 0,
     'error': 0.02,
@@ -224,14 +224,48 @@ u3_info = {
     'visible_measurement': True
 }
 
+u4_info = {
+    'id': 'u4',
+    'position': [1.911, 3.036],
+    'height': 1,
+    'rotation': -45,
+    'error': 0.02,
+    'outline': [
+        pm.Vector2(-1, -0.5),
+        pm.Vector2(-1, 0.5),
+        pm.Vector2(1, 0.5),
+        pm.Vector2(1, -0.5)
+    ],
+    'visible': True,
+    'visible_measurement': True
+}
+
+u5_info = {
+    'id': 'u5',
+    'position': [-1.911, 3.036],
+    'height': 1,
+    'rotation': 45,
+    'error': 0.02,
+    'outline': [
+        pm.Vector2(-1, -0.5),
+        pm.Vector2(-1, 0.5),
+        pm.Vector2(1, 0.5),
+        pm.Vector2(1, -0.5)
+    ],
+    'visible': True,
+    'visible_measurement': True
+}
+
 sensors = {
     'u0': Ultrasonic(u0_info),
     'u1': Ultrasonic(u1_info),
     'u2': Ultrasonic(u2_info),
-    'u3': Ultrasonic(u3_info)
+    'u3': Ultrasonic(u3_info),
+    'u4': Ultrasonic(u4_info),
+    'u5': Ultrasonic(u5_info)
 }
 
 
 
 ### TESTING AND DEBUG SETTINGS ###
-simulate_list = ['u0', 'u1','u2','u3']
+simulate_list = ['u0', 'u1','u2','u3','u4','u5']
