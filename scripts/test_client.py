@@ -262,7 +262,7 @@ while RUN_COMMUNICATION_CLIENT:
 ############## Main section for the open loop control algorithm ##############
 # The sequence of commands to run
 CMD_SEQUENCE = ['w0:36', 'r0:90', 'w0:36', 'r0:90', 'w0:12', 'r0:-90', 'w0:24', 'r0:-90', 'w0:6', 'r0:720']
-LOOP_PAUSE_TIME = 1 # seconds
+LOOP_PAUSE_TIME = 0.5 # seconds
 
 # Main loop
 RUN_DEAD_RECKONING = True # If true, run this. If false, skip it
@@ -271,44 +271,75 @@ while RUN_DEAD_RECKONING:
     # Pause for a little while so as to not spam commands insanely fast
     time.sleep(LOOP_PAUSE_TIME)
 
-    # If the command sequence hasn't been completed yet
-    if ct < len(CMD_SEQUENCE):
+    # Check an ultrasonic sensor 'u0'
+    packet_tx = packetize('u0')
+    if packet_tx:
+        transmit(packet_tx)
+        [responses0, time_rx] = receive()
+        print(f"Ultrasonic 0 reading: {response_string('u0',responses0)}")
 
-        # Check an ultrasonic sensor 'u0'
-        packet_tx = packetize('u0')
-        if packet_tx:
-            transmit(packet_tx)
-            [responses, time_rx] = receive()
-            print(f"Ultrasonic 0 reading: {response_string('u0',responses)}")
+    # Check an ultrasonic sensor 'u1'
+    packet_tx = packetize('u1')
+    if packet_tx:
+        transmit(packet_tx)
+        [responses1, time_rx] = receive()
+        print(f"Ultrasonic 1 reading: {response_string('u1',responses1)}")
 
-        # Check an ultrasonic sensor 'u1'
-        packet_tx = packetize('u1')
-        if packet_tx:
-            transmit(packet_tx)
-            [responses, time_rx] = receive()
-            print(f"Ultrasonic 1 reading: {response_string('u1',responses)}")
+    # Check an ultrasonic sensor 'u2'
+    packet_tx = packetize('u2')
+    if packet_tx:
+        transmit(packet_tx)
+        [responses2, time_rx] = receive()
+        print(f"Ultrasonic 2 reading: {response_string('u2',responses2)}")
 
-        # Check the remaining three sensors: gyroscope, compass, and IR
-        packet_tx = packetize('g0,c0,i0')
-        if packet_tx:
-            transmit(packet_tx)
-            [responses, time_rx] = receive()
-            print(f"Other sensor readings:\n{response_string('g0,c0,i0',responses)}")
+    # Check an ultrasonic sensor 'u3'
+    packet_tx = packetize('u3')
+    if packet_tx:
+        transmit(packet_tx)
+        [responses3, time_rx] = receive()
+        print(f"Ultrasonic 3 reading: {response_string('u3',responses3)}")
 
-        # Send a drive command
-        packet_tx = packetize(CMD_SEQUENCE[ct])
-        if packet_tx:
-            transmit(packet_tx)
-            [responses, time_rx] = receive()
-            print(f"Drive command response: {response_string(CMD_SEQUENCE[ct],responses)}")
+    # Check an ultrasonic sensor 'u4'
+    packet_tx = packetize('u4')
+    if packet_tx:
+        transmit(packet_tx)
+        [responses4, time_rx] = receive()
+        print(f"Ultrasonic 4 reading: {response_string('u4',responses4)}")
 
-        # If we receive a drive response indicating the command was accepted,
-        # move to the next command in the sequence
-        if responses[0]:
-            if responses[0][1] == 'True':
-                ct += 1
+    # Check an ultrasonic sensor 'u5'
+    packet_tx = packetize('u5')
+    if packet_tx:
+        transmit(packet_tx)
+        [responses5, time_rx] = receive()
+        print(f"Ultrasonic 5 reading: {response_string('u5',responses5)}")
 
-    # If the command sequence is complete, finish the program
+    # Go forward as long as it's safe
+    if float(responses0[0][1])>5 and float(responses4[0][1])>3 and float(responses5[0][1])>3:
+        transmit(packetize("w0:3"))
+        [responses, time_rx] = receive()
+        print(f"Forward command response: {response_string("w0:6",responses)}")
+    
+    # If it's no longer safe to go forward
+    #else:
+        #transmit(packetize("xx"))
+        #[responses, time_rx] = receive()
+        #print(f"Stop! {response_string("xx" ,responses)}")
+
+        # Check if there is more space on the left, and rotate that way if yes
+    elif float(responses5[0][1])>4.5 and float(responses1[0][1])>3 and float(responses2[0][1])<float(responses1[0][1]):
+        transmit(packetize("r0:20"))
+        [responses, time_rx] = receive()
+        print(f"Left turn response: {response_string("r0:20",responses)}")
+#            left_counter = True
+        
+        # Check if there is more space on the right, and rotate that way if yes
+    elif float(responses4[0][1])>4.5 and float(responses2[0][1])>3 and float(responses1[0][1])<float(responses2[0][1]):
+        transmit(packetize("r0:-20"))
+        [responses, time_rx] = receive()
+        print(f"Right turn response: {response_string("r0:-20",responses)}")
+#            right_counter = True
+        
     else:
-        RUN_DEAD_RECKONING = False
-        print("Sequence complete!")
+        transmit(packetize("w0:-2"))
+        [responses, time_rx] = receive()
+        print(f"Back it up: {response_string("w0:-2",responses)}")
