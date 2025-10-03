@@ -208,21 +208,21 @@ u2_info = {
     'visible_measurement': True
 }
 
-u3_info = {
-    'id': 'u3',
-    'position': [0, -2.5],
-    'height': 1,
-    'rotation': 180,
-    'error': 0.02,
-    'outline': [
-        pm.Vector2(-1, -0.5),
-        pm.Vector2(-1, 0.5),
-        pm.Vector2(1, 0.5),
-        pm.Vector2(1, -0.5)
-    ],
-    'visible': True,
-    'visible_measurement': True
-}
+# u3_info = {
+#     'id': 'u3',
+#     'position': [0, -2.5],
+#     'height': 1,
+#     'rotation': 180,
+#     'error': 0.02,
+#     'outline': [
+#         pm.Vector2(-1, -0.5),
+#         pm.Vector2(-1, 0.5),
+#         pm.Vector2(1, 0.5),
+#         pm.Vector2(1, -0.5)
+#     ],
+#     'visible': True,
+#     'visible_measurement': True
+# }
 
 u4_info = {
     'id': 'u4',
@@ -260,7 +260,7 @@ sensors = {
     'u0': Ultrasonic(u0_info),
     'u1': Ultrasonic(u1_info),
     'u2': Ultrasonic(u2_info),
-    'u3': Ultrasonic(u3_info),
+#    'u3': Ultrasonic(u3_info),
     'u4': Ultrasonic(u4_info),
     'u5': Ultrasonic(u5_info)
 }
@@ -268,4 +268,4 @@ sensors = {
 
 
 ### TESTING AND DEBUG SETTINGS ###
-simulate_list = ['u0', 'u1','u2','u3','u4','u5']
+simulate_list = ['u0', 'u1','u2','u4','u5']

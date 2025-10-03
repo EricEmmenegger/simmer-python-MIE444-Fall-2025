@@ -261,8 +261,7 @@ while RUN_COMMUNICATION_CLIENT:
 
 ############## Main section for the open loop control algorithm ##############
 # The sequence of commands to run
-CMD_SEQUENCE = ['w0:36', 'r0:90', 'w0:36', 'r0:90', 'w0:12', 'r0:-90', 'w0:24', 'r0:-90', 'w0:6', 'r0:720']
-LOOP_PAUSE_TIME = 0.5 # seconds
+LOOP_PAUSE_TIME = 0.2 # seconds
 
 # Main loop
 RUN_DEAD_RECKONING = True # If true, run this. If false, skip it
@@ -292,12 +291,12 @@ while RUN_DEAD_RECKONING:
         [responses2, time_rx] = receive()
         print(f"Ultrasonic 2 reading: {response_string('u2',responses2)}")
 
-    # Check an ultrasonic sensor 'u3'
-    packet_tx = packetize('u3')
-    if packet_tx:
-        transmit(packet_tx)
-        [responses3, time_rx] = receive()
-        print(f"Ultrasonic 3 reading: {response_string('u3',responses3)}")
+    # # Check an ultrasonic sensor 'u3'
+    # packet_tx = packetize('u3')
+    # if packet_tx:
+    #     transmit(packet_tx)
+    #     [responses3, time_rx] = receive()
+    #     print(f"Ultrasonic 3 reading: {response_string('u3',responses3)}")
 
     # Check an ultrasonic sensor 'u4'
     packet_tx = packetize('u4')
@@ -313,33 +312,35 @@ while RUN_DEAD_RECKONING:
         [responses5, time_rx] = receive()
         print(f"Ultrasonic 5 reading: {response_string('u5',responses5)}")
 
-    # Go forward as long as it's safe
-    if float(responses0[0][1])>5 and float(responses4[0][1])>3 and float(responses5[0][1])>3:
+    if float(responses0[0][1])>4.5 and float(responses4[0][1])>2.5 and float(responses5[0][1])>2.5:
         transmit(packetize("w0:3"))
         [responses, time_rx] = receive()
-        print(f"Forward command response: {response_string("w0:6",responses)}")
-    
-    # If it's no longer safe to go forward
-    #else:
-        #transmit(packetize("xx"))
-        #[responses, time_rx] = receive()
-        #print(f"Stop! {response_string("xx" ,responses)}")
+        print(f"Forward: {response_string("w0:3",responses)}")
 
-        # Check if there is more space on the left, and rotate that way if yes
-    elif float(responses5[0][1])>4.5 and float(responses1[0][1])>3 and float(responses2[0][1])<float(responses1[0][1]):
-        transmit(packetize("r0:20"))
+    #Take a right turn if the track is there
+    elif float(responses1[0][1]) > 12 and float(responses0[0][1]) > 1.5 and float(responses0[0][1]) < 5:
+        transmit(packetize("r0:60"))
         [responses, time_rx] = receive()
-        print(f"Left turn response: {response_string("r0:20",responses)}")
-#            left_counter = True
-        
-        # Check if there is more space on the right, and rotate that way if yes
-    elif float(responses4[0][1])>4.5 and float(responses2[0][1])>3 and float(responses1[0][1])<float(responses2[0][1]):
-        transmit(packetize("r0:-20"))
+        print(f"Turning to complete the track: {response_string("r0:60",responses)}")
+
+    # Check if there is more space on the left, and rotate that way if yes
+    elif float(responses5[0][1])>4.5 and float(responses1[0][1])>3 and float(responses2[0][1])<float(responses1[0][1]) and float(responses4[0][1])<float(responses5[0][1]):
+        transmit(packetize("r0:10"))
         [responses, time_rx] = receive()
-        print(f"Right turn response: {response_string("r0:-20",responses)}")
-#            right_counter = True
+        print(f"Left turn: {response_string("r0:10",responses)}")
         
+    # Check if there is more space on the right, and rotate that way if yes
+    elif float(responses4[0][1])>4.5 and float(responses2[0][1])>3 and float(responses1[0][1])<float(responses2[0][1]) and float(responses5[0][1])<float(responses4[0][1]):
+        transmit(packetize("r0:-10"))
+        [responses, time_rx] = receive()
+        print(f"Right turn: {response_string("r0:-10",responses)}")
+
+    elif ((float(responses0[0][1]) + float(responses1[0][1]) + float(responses2[0][1]))) / 3 < 6:
+        transmit(packetize("r0:180"))
+        [responses, time_rx] = receive()
+        print(f"Spin it round: {response_string("r0:180",responses)}")
+
     else:
-        transmit(packetize("w0:-2"))
+        transmit(packetize("w0:-1"))
         [responses, time_rx] = receive()
-        print(f"Back it up: {response_string("w0:-2",responses)}")
+        print(f"Back it up: {response_string("w0:-1",responses)}")
