@@ -241,74 +241,49 @@ else:
 ############## Main section for the communication client ##############
 RUN_COMMUNICATION_CLIENT = True # If true, run this. If false, skip it
 while RUN_COMMUNICATION_CLIENT:
+    
     # Input a command
     cmd = input('Type in a string to send: ')
 
-    # Send the command
-    packet_tx = packetize(cmd)
-    if packet_tx:
-        transmit(packet_tx)
-
-    # Receive the response
-    [responses, time_rx] = receive()
-    if responses[0]:
-        print(f"At time '{time_rx}' received from {SOURCE}:\n{response_string(cmd, responses)}")
-    else:
-        print(f"At time '{time_rx}' received from {SOURCE}:\nMalformed Packet")
-
-
-
-
-############## Main section for the open loop control algorithm ##############
-# The sequence of commands to run
-CMD_SEQUENCE = ['w0:36', 'r0:90', 'w0:36', 'r0:90', 'w0:12', 'r0:-90', 'w0:24', 'r0:-90', 'w0:6', 'r0:720']
-LOOP_PAUSE_TIME = 1 # seconds
-
-# Main loop
-RUN_DEAD_RECKONING = False # If true, run this. If false, skip it
-ct = 0
-while RUN_DEAD_RECKONING:
-    # Pause for a little while so as to not spam commands insanely fast
-    time.sleep(LOOP_PAUSE_TIME)
-
-    # If the command sequence hasn't been completed yet
-    if ct < len(CMD_SEQUENCE):
+    if cmd == 'Check all sensors':
 
         # Check an ultrasonic sensor 'u0'
         packet_tx = packetize('u0')
         if packet_tx:
             transmit(packet_tx)
-            [responses, time_rx] = receive()
-            print(f"Ultrasonic 0 reading: {response_string('u0',responses)}")
+            [responses0, time_rx] = receive()
 
         # Check an ultrasonic sensor 'u1'
         packet_tx = packetize('u1')
         if packet_tx:
             transmit(packet_tx)
-            [responses, time_rx] = receive()
-            print(f"Ultrasonic 1 reading: {response_string('u1',responses)}")
+            [responses1, time_rx] = receive()
 
-        # Check the remaining three sensors: gyroscope, compass, and IR
-        packet_tx = packetize('g0,c0,i0')
+        # Check an ultrasonic sensor 'u2'
+        packet_tx = packetize('u2')
         if packet_tx:
             transmit(packet_tx)
-            [responses, time_rx] = receive()
-            print(f"Other sensor readings:\n{response_string('g0,c0,i0',responses)}")
+            [responses2, time_rx] = receive()
 
-        # Send a drive command
-        packet_tx = packetize(CMD_SEQUENCE[ct])
+        # Check an ultrasonic sensor 'u3'
+        packet_tx = packetize('u3')
         if packet_tx:
             transmit(packet_tx)
-            [responses, time_rx] = receive()
-            print(f"Drive command response: {response_string(CMD_SEQUENCE[ct],responses)}")
+            [responses3, time_rx] = receive()
+    
+        print(f"...... F:{round(float(responses0[0][1])):02d} ......\n.. L:{round(float(responses2[0][1])):02d} .. R:{round(float(responses1[0][1])):02d} ..\n...... B:{round(float(responses3[0][1])):02d} ......")
 
-        # If we receive a drive response indicating the command was accepted,
-        # move to the next command in the sequence
-        if responses[0]:
-            if responses[0][1] == 'True':
-                ct += 1
 
-    # If the command sequence is complete, finish the program
     else:
-        RUN_DEAD_RECKONING = False
-        print("Sequence complete!")
+
+        # Send the command
+        packet_tx = packetize(cmd)
+        if packet_tx:
+            transmit(packet_tx)
+
+        # Receive the response
+        [responses, time_rx] = receive()
+        if responses[0]:
+            print(f"At time '{time_rx}' received from {SOURCE}:\n{response_string(cmd, responses)}")
+        else:
+            print(f"At time '{time_rx}' received from {SOURCE}:\nMalformed Packet")
